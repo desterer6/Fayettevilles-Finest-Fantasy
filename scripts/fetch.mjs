@@ -9,7 +9,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildLeagueData, cleanCookie, normalizeSwid, cookieDiagnostics, defaultSeason, regularPeriods, POSITION, PRO_TEAM } from './espn.mjs';
+import { buildLeagueData, cleanCookie, normalizeSwid, cookieDiagnostics, defaultSeason, regularPeriods, nflGamesDone, POSITION, PRO_TEAM } from './espn.mjs';
 import { tradesFromTransactions, playersFromRosters, describeTransactions, TRADE_TYPES, isTradeRow, tradesFromActivity, mergeTrades, TRADE_MESSAGE } from './trades.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -72,8 +72,30 @@ try {
     }
   }
 
+  // NFL game status for the week still in progress, so a matchup shows Final as soon as every starter
+  // on both teams has played (ESPN only marks the week decided after Monday night). Optional: if the
+  // NFL scoreboard can't be read, those matchups simply stay Live until ESPN decides them.
+  const nflDoneByPeriod = {};
+  for (const { mp, scoringPeriods } of regularPeriods(league)) {
+    if (mp > lastMp) break;
+    const games = (league.schedule || []).filter(m => m.matchupPeriodId === mp);
+    if (!games.length || games.every(m => m.winner && m.winner !== 'UNDECIDED')) continue;
+    for (const sp of scoringPeriods) {
+      try {
+        const res = await fetch(`https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${season}&seasontype=2&week=${sp}`,
+          { headers: { accept: 'application/json', 'user-agent': 'league-report-site' } });
+        if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+        const done = nflGamesDone(await res.json());
+        if (done) nflDoneByPeriod[sp] = done;
+        console.log(`NFL week ${sp}: ${done ? `${Object.values(done).filter(Boolean).length}/${Object.keys(done).length} teams finished` : 'no games listed'}`);
+      } catch (e) {
+        console.error(`NFL scoreboard for week ${sp} not read (matchups stay Live until ESPN decides them): ${e.message}`);
+      }
+    }
+  }
+
   const relegation = Number.isInteger(cfg.relegation) && cfg.relegation > 0 ? cfg.relegation : 0;
-  const out = buildLeagueData({ league, boxByPeriod, leagueId, relegation });
+  const out = buildLeagueData({ league, boxByPeriod, leagueId, relegation, nflDoneByPeriod });
   const dest = path.join(root, 'site', 'data', 'league.json');
   await fs.mkdir(path.dirname(dest), { recursive: true });
 

@@ -200,7 +200,7 @@ export function matchupToWatch(ctx) {
     why.push(aw === bw ? `Season series tied ${aw}-${bw}.` : `${ctx.name(aw > bw ? g.a.rid : g.b.rid)} won the earlier meeting${h2h.length > 1 ? 's' : ''} ${Math.max(aw, bw)}-${Math.min(aw, bw)}.`);
   }
   return {
-    week: last + 1, complete: !!entry.complete, inProgress: !entry.complete && games.some(m => m.teams.some(t => t.pts > 0)),
+    week: last + 1, complete: !!(entry.complete || g.m.final), inProgress: !(entry.complete || g.m.final) && games.some(m => m.teams.some(t => t.pts > 0)),
     a: side(g.a, g.ra), b: side(g.b, g.rb), useProj: g.useProj, gap: g.gap, watch: g.watch, h2h, why,
   };
 }

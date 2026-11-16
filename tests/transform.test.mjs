@@ -2,7 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { buildLeagueData, cleanCookie, cookieDiagnostics, defaultSeason, normalizeSwid, teamName } from '../scripts/espn.mjs';
+import { buildLeagueData, nflGamesDone, cleanCookie, cookieDiagnostics, defaultSeason, normalizeSwid, teamName } from '../scripts/espn.mjs';
 import { consistencyChecks, privacyChecks } from './checks.mjs';
 
 const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'fixtures');
@@ -21,6 +21,29 @@ ok(teamName({ id: 9 }) === 'Team 9', 'team name fallback');
 ok(JSON.stringify(data.weeks.map(w => [w.week, w.complete])) === '[[1,true],[2,true],[3,true],[4,false]]', 'weeks 1-3 final, 4 live, future weeks omitted');
 ok(data.weeks.every(w => w.matchups.length === 4), 'four matchups a week, playoffs excluded');
 ok(data.weeks[3].matchups.every(m => m.teams.every(t => t.pts > 0)), 'live week uses live points');
+
+// Final per matchup: decided weeks are final; a live week's game is final once every starter has played.
+ok(data.weeks.slice(0, 3).every(w => w.matchups.every(m => m.final === true)), 'decided weeks: every game final');
+ok(data.weeks[3].matchups.every(m => m.final === false), 'live week without an NFL scoreboard: every game stays live');
+const nflTeams = [...new Set(Object.values(data.players).map(p => p.t).filter(Boolean))];
+const allDone = Object.fromEntries(nflTeams.map(t => [t, true]));
+const done4 = buildLeagueData({ league, boxByPeriod, leagueId: '123456', nflDoneByPeriod: { 4: allDone } });
+ok(done4.weeks[3].matchups.every(m => m.final === true) && done4.weeks[3].complete === false,
+  'every starter played: games final while the week (standings) waits for ESPN');
+const m0 = done4.weeks[3].matchups[0];
+const pending = data.players[m0.teams[1].starters[0].id].t;
+const oneLeft = buildLeagueData({ league, boxByPeriod, leagueId: '123456', nflDoneByPeriod: { 4: { ...allDone, [pending]: false } } });
+const stillLive = oneLeft.weeks[3].matchups.filter(m => !m.final);
+ok(stillLive.length >= 1 && !oneLeft.weeks[3].matchups[0].final, 'one starter still to play keeps that game live');
+ok(stillLive.every(m => m.teams.some(t => t.starters.some(s => data.players[s.id].t === pending))), 'only games with that starter stay live');
+const byeOnly = { ...allDone }; delete byeOnly[pending];
+ok(buildLeagueData({ league, boxByPeriod, leagueId: '123456', nflDoneByPeriod: { 4: byeOnly } }).weeks[3].matchups.every(m => m.final), 'a team on a bye has nothing left to play');
+
+// NFL scoreboard parsing (shape of site.api.espn.com scoreboard)
+const ev = (a, b, completed, state) => ({ status: { type: { completed, state } }, competitions: [{ competitors: [{ team: { abbreviation: a } }, { team: { abbreviation: b } }] }] });
+const sb = nflGamesDone({ events: [ev('KC', 'BUF', true, 'post'), ev('WAS', 'DAL', false, 'in'), ev('NYG', 'PHI', false, 'pre')] });
+ok(sb.KC && sb.BUF && sb.WSH === false && sb.DAL === false && sb.NYG === false && !('SF' in sb), 'scoreboard: finished, live, not started, bye');
+ok(nflGamesDone({ events: [] }) === null && nflGamesDone(null) === null, 'empty scoreboard means unknown');
 
 const starters = data.weeks[0].matchups[0].teams[0].starters;
 ok(starters.length === 9, `nine starters (bench excluded), got ${starters.length}`);
