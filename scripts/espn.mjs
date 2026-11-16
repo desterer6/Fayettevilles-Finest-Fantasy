@@ -91,14 +91,50 @@ export function startersOf(side, sp, players) {
   return out;
 }
 
+// NFL game state by team for one NFL week, from ESPN's public scoreboard
+// (site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard). Returns { ABBR: true|false }, true once that
+// team's game is final. Teams on a bye aren't listed. null when the scoreboard has no games (fetch failed or unknown).
+const TEAM_ALIAS = { WAS: 'WSH', JAC: 'JAX', LA: 'LAR' };
+export function nflGamesDone(scoreboard) {
+  const events = scoreboard?.events || [];
+  if (!events.length) return null;
+  const out = {};
+  for (const e of events) {
+    const done = e.status?.type?.completed === true || e.competitions?.[0]?.status?.type?.completed === true;
+    for (const c of e.competitions?.[0]?.competitors || []) {
+      const abbr = TEAM_ALIAS[c.team?.abbreviation] || c.team?.abbreviation;
+      if (abbr) out[abbr] = done;
+    }
+  }
+  return out;
+}
+
+// True when nothing is left to score for these starters: every starter's NFL game in every scoring period of
+// the matchup is final (a team on a bye, or a player with no NFL team, has nothing left to play).
+// Needs a scoreboard for each scoring period; without one the game stays live.
+export function startersDone(startersByPeriod, nflDoneByPeriod, players) {
+  for (const [sp, ids] of startersByPeriod) {
+    const done = nflDoneByPeriod[sp];
+    if (!done) return false;
+    for (const id of ids) {
+      if (!players[id]) return false; // unknown player: can't tell, keep it live
+      const t = players[id].t;
+      if (t && done[t] === false) return false;
+    }
+  }
+  return true;
+}
+
 const sidePoints = (side, decided) => round2(decided ? side.totalPoints : side.totalPointsLive ?? side.totalPoints);
 
 /**
  * @param league   response of the league endpoint with views mTeam, mSettings, mStatus, mMatchupScore
  * @param boxByPeriod  { [scoringPeriodId]: schedule[] } from the mBoxscore view for each scoring period fetched
  * @param leagueId  the configured league ID (string)
+ * @param nflDoneByPeriod  { [scoringPeriodId]: nflGamesDone(scoreboard) } for the live week's NFL weeks: a matchup
+ *                   shows Final once every starter on both teams has played, before ESPN officially decides it
  */
-export function buildLeagueData({ league, boxByPeriod = {}, leagueId, relegation = 0, now = new Date() }) {
+export function buildLeagueData({ league, boxByPeriod = {}, leagueId, relegation = 0, nflDoneByPeriod = {}, now = new Date() }) {
   const periods = regularPeriods(league);
   const lastRegular = periods.length;
   const current = league.status?.currentMatchupPeriod ?? 0;
@@ -118,13 +154,18 @@ export function buildLeagueData({ league, boxByPeriod = {}, leagueId, relegation
 
     const matchups = games.map(m => {
       const sides = [m.home, m.away].filter(Boolean);
+      const startersByPeriod = scoringPeriods.map(sp => [sp, []]);
+      let boxSeen = true;
       const teams = sides.map(s => {
         const totals = new Map();
         let proj = 0, projFound = false;
         for (const sp of scoringPeriods) {
           const box = (boxByPeriod[sp] || []).find(b => b.id === m.id);
           const boxSide = box && [box.home, box.away].find(x => x?.teamId === s.teamId);
-          for (const st of startersOf(boxSide, sp, players)) {
+          if (!boxSide) boxSeen = false;
+          const list = startersOf(boxSide, sp, players);
+          startersByPeriod.find(([p]) => p === sp)[1].push(...list.map(st => st.id));
+          for (const st of list) {
             totals.set(st.id, round2((totals.get(st.id) || 0) + st.pts));
             if (st.proj != null) { proj += st.proj; projFound = true; }
           }
@@ -138,7 +179,10 @@ export function buildLeagueData({ league, boxByPeriod = {}, leagueId, relegation
         const [h, a] = [official[m.home.teamId], official[m.away.teamId]];
         if (m.winner === 'HOME') { h.w++; a.l++; } else if (m.winner === 'AWAY') { a.w++; h.l++; } else { h.t++; a.t++; }
       }
-      return { id: m.id, teams };
+      // Final: ESPN decided it, or every starter on both teams has finished their NFL game.
+      const decided = !!m.winner && m.winner !== 'UNDECIDED';
+      const final = decided || (teams.length === 2 && boxSeen && startersDone(startersByPeriod, nflDoneByPeriod, players));
+      return { id: m.id, teams, final };
     });
     weeks.push({ week: mp, complete, matchups });
   }
