@@ -4,6 +4,9 @@ import { label } from './common.js';
 import { playoffSize, relegationCount, relegationStatus, currentSeeds, clinchStatus, playoffOdds, bracket, regularSeasonDone, remainingGames } from '../playoffs.js';
 
 const pctText = p => (p >= 0.995 && p < 1 ? '>99%' : p > 0 && p < 0.005 ? '<1%' : `${Math.round(p * 100)}%`);
+// ESPN-style marks beside a team name: x = clinched a playoff spot, e = eliminated from the playoffs.
+const MARKS = { clinched: ['x', 'Clinched a playoff spot'], eliminated: ['e', 'Eliminated from playoff contention'] };
+const mark = s => (MARKS[s] ? h('span', { class: `cmark ${s}`, title: MARKS[s][1], 'aria-label': MARKS[s][1] }, MARKS[s][0]) : null);
 const weeksText = ws => (ws.length > 1 ? `Weeks ${ws[0]}–${ws[ws.length - 1]}` : `Week ${ws[0]}`);
 
 // Playoffs once the regular season is over; projected playoffs (if the season ended today, plus odds) before that.
@@ -12,6 +15,7 @@ export function renderPlayoffs(ctx) {
   const done = regularSeasonDone(ctx);
   const { rows: seeds, source } = currentSeeds(ctx);
   const br = bracket(ctx, seeds);
+  const status = done ? {} : clinchStatus(ctx, seeds, remainingGames(ctx));
   const started = br.rounds.some(r => r.games.some(g => g.winner != null || g.live || Object.keys(g.pts).length));
   const champ = br.champion;
   const title = done ? 'Playoffs' : 'Projected Playoffs';
@@ -25,11 +29,20 @@ export function renderPlayoffs(ctx) {
     h('p', { class: 'dek' }, dek),
     h('nav', { class: 'sub' }, h('a', { href: '#/standings' }, 'League table'), h('a', { href: '#/power' }, 'Power rankings'), h('a', { href: '#/playoffs', class: 'on' }, done ? 'Playoffs' : 'Projected playoffs')),
     champ != null ? h('div', { class: 'champ' }, h('span', { class: 'kicker' }, `${ctx.data.league.season} Champion`), h('b', {}, ctx.name(champ))) : null,
-    bracketCard(ctx, br, done, started),
-    done ? seedsCard(ctx, seeds, K) : raceCard(ctx, seeds, K, source));
+    done ? null : clinchNote(ctx, seeds, status),
+    bracketCard(ctx, br, done, started, status),
+    done ? seedsCard(ctx, seeds, K) : raceCard(ctx, seeds, K, source, status));
 }
 
-function bracketCard(ctx, br, done, started) {
+// Who has locked up a spot so far, the way ESPN flags it. Nothing shown until someone clinches.
+function clinchNote(ctx, seeds, status) {
+  const ins = seeds.filter(r => status[r.rid] === 'clinched');
+  if (!ins.length) return null;
+  return h('p', { class: 'clinch-note' }, h('b', {}, 'Clinched: '), ins.map((r, i) => [i ? ', ' : '', label(ctx, r.rid)]),
+    `. ${ins.length === 1 ? 'This team has' : 'These teams have'} locked up a playoff spot, marked `, mark('clinched'), ' below.');
+}
+
+function bracketCard(ctx, br, done, started, status = {}) {
   const team = (slot, g) => {
     if (!slot) return h('div', { class: 'bk-team tbd' }, h('span', { class: 'sd' }, ''), h('span', { class: 'nm' }, 'TBD'), h('span', { class: 'pt' }, ''));
     if (slot.bye) return h('div', { class: 'bk-team tbd' }, h('span', { class: 'sd' }, ''), h('span', { class: 'nm' }, 'Bye'), h('span', { class: 'pt' }, ''));
@@ -37,7 +50,7 @@ function bracketCard(ctx, br, done, started) {
     const lost = g.winner != null && g.winner !== slot.rid;
     const pts = g.pts[slot.rid];
     return h('div', { class: 'bk-team' + (g.winner === slot.rid ? ' won' : '') + (lost ? ' lost' : '') + (slot.rid === ctx.meRid ? ' me' : '') },
-      h('span', { class: 'sd' }, slot.seed ?? ''), h('span', { class: 'nm' }, ctx.name(slot.rid)), h('span', { class: 'pt' }, pts != null && (pts > 0 || g.winner != null) ? f1(pts) : ''));
+      h('span', { class: 'sd' }, slot.seed ?? ''), h('span', { class: 'nm' }, ctx.name(slot.rid), mark(status[slot.rid] === 'clinched' ? 'clinched' : null)), h('span', { class: 'pt' }, pts != null && (pts > 0 || g.winner != null) ? f1(pts) : ''));
   };
   return section(done ? 'Bracket' : 'Projected bracket',
     done ? (started ? 'Scores update with every refresh. Winners advance.' : 'Seeds are locked. Games start next week.') : 'Seeded by today’s standings. Higher seeds sit on top.',
@@ -47,9 +60,8 @@ function bracketCard(ctx, br, done, started) {
         g.live ? h('div', { class: 'bk-live' }, 'Live') : null, team(g.top, g), team(g.bottom, g))))))));
 }
 
-function raceCard(ctx, seeds, K, source) {
+function raceCard(ctx, seeds, K, source, status) {
   const remaining = remainingGames(ctx);
-  const status = clinchStatus(ctx, seeds, remaining);
   const { odds, sims } = playoffOdds(ctx);
   const w = r => A.winsOf(r);
   const lineIn = seeds[K] ? w(seeds[K]) : null; // first team out
@@ -64,8 +76,9 @@ function raceCard(ctx, seeds, K, source) {
   const N = seeds.length;
   const relStatus = relegationStatus(ctx, seeds, remaining);
   const inDrop = r => R > 0 && r.seed > N - R;
-  const teamCell = r => [label(ctx, r.rid), inDrop(r) ? h('span', { class: 'rtag', title: `Last place at the end of the regular season is relegated from the league` }, relStatus[r.rid] === 'relegated' ? 'Relegated' : 'Relegation zone') : null];
-  const oddsOf = r => (status[r.rid] === 'clinched' ? 1 : status[r.rid] === 'eliminated' ? 0 : odds[r.rid].pct);
+  const teamCell = r => [label(ctx, r.rid), mark(status[r.rid]), inDrop(r) ? h('span', { class: 'rtag', title: `Last place at the end of the regular season is relegated from the league` }, relStatus[r.rid] === 'relegated' ? 'Relegated' : 'Relegation zone') : null];
+  // Only a clinch or elimination is certain: every sim going one way still reads >99% / <1%.
+  const oddsOf = r => (status[r.rid] === 'clinched' ? 1 : status[r.rid] === 'eliminated' ? 0 : Math.min(0.995, Math.max(0.004, odds[r.rid].pct)));
   const table = sortableTable({
     sortKey: 'seed', desc: false, stickyIndex: 1,
     rowClass: r => [r.rid === ctx.meRid ? 'mine' : '', r.seed === K + 1 ? 'cut' : '', inDrop(r) ? 'releg' : ''].join(' ').trim(),
@@ -97,7 +110,7 @@ function raceCard(ctx, seeds, K, source) {
     h('p', { class: 'note' },
       `Seeds ${source === 'espn' ? 'come straight from ESPN, using the league’s tiebreakers' : 'are by record, then points for'}. ` +
       `Odds come from playing out the remaining ESPN schedule ${sims.toLocaleString()} times, with each team scoring like it has so far this season (and ESPN’s projections for the current week), ranked by wins and then points. ` +
-      'Clinched and Eliminated are certain on wins alone.'));
+      'x = clinched a playoff spot, e = eliminated. Both are certain on wins alone.'));
 }
 
 function seedsCard(ctx, seeds, K) {
