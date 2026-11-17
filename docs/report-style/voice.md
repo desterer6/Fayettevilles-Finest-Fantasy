@@ -32,6 +32,24 @@ first draft so it already looks like the final:
 - Not every section ends with a big all-caps closer. Some end flat ("I'm upset just looking at this
   matchup result"), which keeps the rhythm from feeling like a template.
 
+## Week 10: what David changed in Claude's first full draft
+
+This was the first report Claude drafted for real. David kept about 90% of it. His edits:
+
+- **Don't repeat a stat between the opener and a section.** He cut "161.70, 148.68, 152.98, that's
+  463.36" from Tucker's section because the opener already says 463 in three weeks. He also cut
+  "the 8 seed is 4-6 and three teams are one game back" from the opener.
+- **When the worst team gets blown out, keep it short and a little sympathetic.** Silas's section
+  ended after the 102.56 margin with "nuff said… poor silas 📉🥀". The record line, the McConkey
+  rent aside and the golf-divot closer were all cut.
+- **Don't write asides in David's voice about David.** He removed "(yes I'm writing about myself,
+  let me have this one)". He writes his own asides.
+- **Punchier word swaps:** "trading away his starters" became "trading away his HOUSE".
+- **More emoji, dropped mid-sentence** (🫪, 🚬, 🙏, ⏸️, 📉📉🚽), plus small connective edits
+  ("ALSO FIGHTING ONE GAME OUT", "CGreer" instead of "Greer").
+- Everything else stayed: the opener's Thanksgiving hook, the trade jokes, coin flips, back-to-back
+  negative defenses, the group-project line and the subscription-plan closer.
+
 ## Consistent vs. fresh
 
 David wants every report to feel like the same newsletter while staying fun and fresh.

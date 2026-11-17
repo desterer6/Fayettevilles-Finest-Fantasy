@@ -67,6 +67,15 @@ Logged from the final published recaps (what David posted, not the drafts).
 | 9 | Gage / Graham | Discharged from RA, left his offense at the hospital; lottery three weeks in a row without a ticket; "when will the luck box end" |
 | 9 | Parker / Repp | Snatching defeat from the jaws of victory; comeback like Kim K tour cancelled for low ticket sales |
 | 9 | Tucker / Ben | Endorsed by the military-industrial complex; 161-point warhead; Super PAC donations; Ben requests a congressional hearing |
+| 10 | Opening | Thanksgiving around the corner, who's actually eating; Ryan trading away his house; nobody is safe and nobody is good |
+| 10 | Odom / Silas | You Can Tee Everything teed off on Silas; "nuff said… poor silas" |
+| 10 | Gage / Ryan | Gage scored 158.82 just to prove he could; Wolf of Wall Street rename; sent Daniels, Skattebo and Watson to the guy who beat him for Higbee; "check on Ryan"; garage sale where everything is a dollar |
+| 10 | Repp / Carson | Won back to back by 2.22 and 2.98; allergic to a comfortable Sunday; wins coin flips and the coin looks suspicious |
+| 10 | David / Graham | The Dawg finally passed a check; back-to-back negative defenses, doing it on purpose for content |
+| 10 | Parker / Ben | PWillis chose a blowout; Ben's season is a group project nobody answers |
+| 10 | Tucker / CGreer | Treated the matchup to watch like a scrimmage; on a subscription plan and the league keeps getting billed |
+| 10 | Tiers (Thanksgiving theme) | Carving the Turkey; Seated at the Adults' Table; Cranberry Sauce Still Shaped Like the Can; Showed Up With Store-Bought Rolls; Still in the Freezer Thanksgiving Morning |
+| 11 | Matchup to watch (Odom vs. Repp) | Golf vs. Jenga with one block left; Repp's heart rate; somebody's tower comes down Sunday |
 | 9 | Tiers | Pentagon's Unidentified Scoring Objects; Insurance Fraud Hall of Fame; Waffle House Parking Lot Power Struggle; Titanic's Customer Service Department; Blockbuster Going-Out-of-Business Sale |
 | 9 | Intelligence report | Gage's 8-1 luck box; offense on life support |
 | 9 | Matchup to watch | Pay-per-view the FCC won't broadcast; 66-point coma; Geneva Convention; liability waivers missing; notify the National Guard |
@@ -99,6 +108,9 @@ Logged from the final published recaps (what David posted, not the drafts).
 | 9 | Matchup to watch | Dictator vs. revolution on the battlefield; National Guard on standby; future of democracy hanging by a thread |
 
 ## Overused already (rest these first)
+
+- Thanksgiving: used for the Week 10 opener and tiers. Fine again for Week 12 (Thanksgiving week), then retire it.
+- Golf (Odom's new name): used in Week 10 and the Week 11 matchup to watch.
 
 - Military budget / National Guard: FF Weeks 3, 4, 5, 9 (opener) and 10 (matchup to watch).
 - Airport Wi-Fi: Weeks 2 and 3. "BRO WE GET IT": Weeks 2 and 3.
