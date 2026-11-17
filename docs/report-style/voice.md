@@ -117,3 +117,6 @@ Close with one all-caps **INTELLIGENCE REPORT** paragraph explaining the biggest
 `👀🔥 WEEK <N> MATCHUP TO WATCH 🔥👀`, then `Team A (W-L) vs. Team B (W-L)`, then one all-caps
 paragraph. It frames the fight, gives recent scores for both, quotes the platform's projection,
 spells out what each result does to the records, and ends with an absurd escalation.
+
+## Week 10 rankings lesson (FF)
+- David's final Week 10 power rankings dropped the INTELLIGENCE REPORT paragraph and the bullets. Teams are plain lines under each tier with (+N)/(-N) movement only. Default to that format unless he asks for the paragraph back.
