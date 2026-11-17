@@ -66,7 +66,7 @@ function summarySection(ctx, weeks) {
   function draw() {
     const rows = A.summary(ctx, weeks, mode);
     holder.replaceChildren(sortableTable({
-      sortKey: 'rank', desc: false, stickyIndex: 1, rows, rowClass: r => (r.rid === ctx.meRid ? 'mine' : ''),
+      sortKey: 'luck', desc: true, stickyIndex: 1, rows, rowClass: r => (r.rid === ctx.meRid ? 'mine' : ''),
       columns: [
         { key: 'rank', label: '#', align: 'c', firstDesc: false, sort: r => rankOwn[r.rid], cell: r => rankOwn[r.rid] },
         { key: 'team', label: 'Team', firstDesc: false, sort: r => ctx.name(r.rid).toLowerCase(), cell: r => label(ctx, r.rid) },
@@ -85,6 +85,6 @@ function summarySection(ctx, weeks) {
   const sel = h('select', { onchange: e => { mode = e.target.value; draw(); } },
     h('option', { value: 'all' }, 'All starters'), h('option', { value: 'noDEF' }, 'Without defenses'), h('option', { value: 'noKDEF' }, 'Without kickers & defenses'));
   return section('Summary and schedule luck',
-    'Luck = actual wins minus the wins a team’s scoring would earn on an average schedule. “vs others” is the combined record against all other teams’ schedules; “vs median” is the record against the league median each week.',
+    'Sorted luckiest first. Luck = actual wins minus the wins a team’s scoring would earn on an average schedule. “vs others” is the combined record against all other teams’ schedules; “vs median” is the record against the league median each week.',
     h('div', { class: 'controls', style: { margin: '0 0 10px' } }, 'PF counts', sel), holder);
 }
