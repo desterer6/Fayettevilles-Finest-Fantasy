@@ -160,8 +160,6 @@ async function main() {
     content = withTradeNews(ctx, content); // trades pulled from ESPN become League News stories
     setupMePicker(data);
     document.getElementById('league-name').textContent = data.league.name;
-    const initials = data.league.name.replace(/[^A-Za-z ]/g, '').split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 2).toUpperCase();
-    if (initials) document.getElementById('logo-text').textContent = initials;
     document.title = `${data.league.name} | League Report`;
     const when = new Date(data.generatedAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
     document.getElementById('updated').textContent = `${data.league.season} · Week ${data.league.currentWeek}`;
