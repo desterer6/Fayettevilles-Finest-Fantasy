@@ -1,7 +1,7 @@
 headline: 🚨 BLOCKBUSTER TRADE 🚨 The King goes shopping: Jayden Daniels, Christian Watson and Cam Skattebo head to Gage
 byline: The Trade Desk
 date: 2026-11-14T19:10:00Z
-trade: Jayden Daniels, Christian Watson, Cam Skattebo
+trade: Jayden Daniels, Christian Watson, Cam Skattebo, Tyler Higbee
 ---
 THE PHONE LINES ARE OPEN AND THE FRONT OFFICES ARE BUSY ☎️🔥 THE SATURDAY SHOPPING SPREE HAS BEGUN 🛒
 
@@ -9,7 +9,7 @@ FINAL TERMS:
 
 Gage (Im No Longer in RA) gets: Jayden Daniels, Christian Watson, Cam Skattebo AND Ryan's 5th round pick 📦📦📦
 
-Ryan (Waiver Wizard) gets: Gage's 2027 1st round pick 🥇
+Ryan (Waiver Wizard) gets: Gage's 2027 1st round pick 🥇 plus Tyler Higbee
 
 THE KING IS 8-1, IN FIRST PLACE, AND STILL WALKED INTO THE STORE WITH A SHOPPING CART 👑🛒 THREE STARTERS FOR ONE PICK HE PLANS ON MAKING DEAD LAST IN THE DRAFT ORDER ANYWAY. THE LOTTERY WITHOUT A TICKET JUST BOUGHT A FEW MORE TICKETS 🎟️😭
 
