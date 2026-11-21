@@ -7,7 +7,7 @@ THE TRADE MARKET DID NOT TAKE THE WEEKEND OFF 📞🔥 ONE DAY AFTER RYAN STARTE
 
 FINAL TERMS:
 
-Tucker (I'm all JAGged up) gets: James Cook AND a 2027 4th round pick 🦬📦
+Tucker (I'm all JAGged up) gets: James Cook AND Ben's 2027 4th round pick 🦬📦
 
 Ben (Bentonville Football Team) gets: Tucker's 2027 1st round pick 🥇
 
@@ -20,7 +20,7 @@ MEANWHILE BEN IS 5-5, SITTING IN THE 6TH AND FINAL PLAYOFF SPOT, AND JUST SOLD H
 THE PICK LEDGER (keep the receipts) 🧾
 
 Ben: Tucker's 2027 1st
-Tucker: the 2027 4th from Bentonville
+Tucker: Ben's 2027 4th
 
 AND HERE'S THE BEST PART: Tucker's Week 12 opponent is Ryan, who just loaded up on Burrow, Irving, Hockenson and Coleman with picks from 2028 🐺 TWO MEN WHO JUST WENT SHOPPING, ONE MATCHUP, NO RETURNS 🧾🔥
 
