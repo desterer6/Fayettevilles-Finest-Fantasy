@@ -5,8 +5,7 @@
   "rule": {
     "min": 13,
     "max": 17,
-    "deadline": "2026-12-09T12:00:00",
-    "summary": "Every team must hold 13 to 17 picks in the next draft, or face automatic relegation. Checked at the December 9 deadline."
+    "summary": "Every team must hold 13 to 17 picks in each season's draft, or face automatic relegation."
   },
   "managers": {
     "1": "Ben", "2": "Odom", "3": "Silas", "4": "CGreer", "5": "Ryan", "6": "Carson",
@@ -15,7 +14,7 @@
   "seasons": [
     {
       "season": 2027,
-      "ruleChecked": true,
+      "deadline": "2026-12-09T12:00:00",
       "moves": [
         { "from": 8, "round": 2, "to": 9 },
         { "from": 8, "round": 3, "to": 9 },
@@ -41,7 +40,6 @@
     },
     {
       "season": 2028,
-      "ruleChecked": false,
       "moves": [
         { "from": 5, "round": 2, "to": 12 },
         { "from": 5, "round": 4, "to": 3 },

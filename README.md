@@ -179,5 +179,5 @@ Reports → Draft Pick Reporting shows who owns each draft pick, per season, as 
 and a trade ledger, with each team's total checked against the pick rule (13 to 17 picks). ESPN does not track
 picks, so they live in `site/data/draft-picks.json`. When a pick trade goes through, add a line to that season's
 `moves` (`from` = the team that originally held the pick, `to` = who owns it now, both as ESPN team ids, which are the
-keys of `managers`) and, if you like, a `deals` entry for the ledger. Set `ruleChecked` to true once a season's
-picks count toward the rule. Draft slots are projected from the current standings.
+keys of `managers`) and, if you like, a `deals` entry for the ledger. The rule applies to every season listed; add a
+new season block when a pick in a later draft is traded. An optional `deadline` on a season shows when it is checked.

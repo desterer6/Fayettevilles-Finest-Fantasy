@@ -116,7 +116,7 @@ function picksView(ctx, picks, arg) {
   const seasons = picks.seasons;
   const season = seasons.find(s => String(s.season) === arg) || seasons[0];
   const mgr = rid => picks.managers?.[rid] || ctx.name(rid);
-  // Projected slot: worst record picks first, from the current standings.
+  // Teams listed worst record first, from the live standings.
   const order = A.standings(ctx).slice().reverse().map(r => r.rid);
   const { holdings, shown, owner } = pickHoldings(picks, season, order);
   const { min, max } = picks.rule || {};
@@ -134,8 +134,7 @@ function picksView(ctx, picks, arg) {
       tile('Picks moved', String(moved), moved === 1 ? 'pick has changed hands' : 'picks have changed hands'),
       tile('Draft length', `${picks.rounds} rounds`, 'every team starts with one pick per round'),
       min != null ? tile('Pick rule', `${min} to ${max}`, 'picks per team, or automatic relegation') : null,
-      season.ruleChecked && min != null ? tile('In compliance', `${ok} of ${order.length}`, `checked at the ${fmtDate(picks.rule.deadline)} deadline`)
-        : tile('Rule check', 'Not yet', `the rule is checked for the ${seasons[0].season} draft first`)));
+      min != null ? tile('In compliance', `${ok} of ${order.length}`, season.deadline ? `checked at the ${fmtDate(season.deadline)} deadline` : `teams holding ${min} to ${max} picks`) : null));
 
   const chip = it => {
     const rd = ord(it.round);
@@ -147,7 +146,7 @@ function picksView(ctx, picks, arg) {
     h('h2', {}, `${season.season} picks by owner`),
     h('div', { class: 'pk-legend' }, h('span', { class: 'pk' }, '4th'), ' own pick', h('span', { class: 'pk got' }, h('b', {}, '1st'), ' from X'), ' acquired', h('span', { class: 'pk away' }, '4th to X'), ' traded away'),
     h('ul', { class: 'pk-list' }, order.map(rid => {
-      const hd = holdings[rid], st = season.ruleChecked ? status(hd.total) : null;
+      const hd = holdings[rid], st = status(hd.total);
       const cls = hd.total > picks.rounds ? 'up' : hd.total < picks.rounds ? 'down' : '';
       return h('li', { class: rid === ctx.meRid ? 'mine' : '' },
         h('div', { class: 'pk-who' }, h('div', { class: 'n' }, mgr(rid)), h('div', { class: 'm' }, ctx.name(rid))),
@@ -157,15 +156,15 @@ function picksView(ctx, picks, arg) {
           h('div', { class: 'of' }, `of ${picks.rounds}`),
           st ? h('div', { class: `st ${st.ok ? 'ok' : 'bad'}` }, (st.ok ? '✓ ' : '✗ ') + st.text) : null));
     })),
-    h('p', { class: 'note' }, `Rounds ${shown + 1} to ${picks.rounds} are not shown because none of those picks has moved. Teams listed in projected draft order.`));
+    h('p', { class: 'note' }, `Rounds ${shown + 1} to ${picks.rounds} are not shown because none of those picks has moved.`));
 
   const board = h('section', { class: 'card' },
     h('h2', {}, `${season.season} draft board`),
     h('p', { class: 'note', style: { marginTop: 0 } }, 'Rows are each team’s original picks. A gold cell shows who owns that pick now.'),
     h('div', { class: 'tablewrap' }, h('table', { class: 'pk-board' },
-      h('thead', {}, h('tr', {}, h('th', {}, 'Slot · team'), Array.from({ length: shown }, (_, i) => h('th', { class: 'c' }, `Rd ${i + 1}`)), h('th', { class: 'c' }, 'Picks'))),
-      h('tbody', {}, order.map((rid, i) => h('tr', { class: rid === ctx.meRid ? 'mine' : '' },
-        h('th', { scope: 'row' }, h('span', { class: 'slot' }, String(i + 1)), h('span', { class: 'n' }, mgr(rid)), h('span', { class: 'm' }, ctx.name(rid))),
+      h('thead', {}, h('tr', {}, h('th', {}, 'Team'), Array.from({ length: shown }, (_, i) => h('th', { class: 'c' }, `Rd ${i + 1}`)), h('th', { class: 'c' }, 'Picks'))),
+      h('tbody', {}, order.map(rid => h('tr', { class: rid === ctx.meRid ? 'mine' : '' },
+        h('th', { scope: 'row' }, h('span', { class: 'n' }, mgr(rid)), h('span', { class: 'm' }, ctx.name(rid))),
         Array.from({ length: shown }, (_, k) => {
           const o = owner(rid, k + 1);
           return h('td', { class: 'c' }, o === rid ? h('span', { class: 'dot', title: `${mgr(rid)} still owns this pick` }, '•')
@@ -183,5 +182,5 @@ function picksView(ctx, picks, arg) {
     seasonNav,
     picks.rule?.summary ? h('p', { class: 'note' }, picks.rule.summary) : null,
     summary, byOwner, board, deals,
-    h('p', { class: 'note' }, `Slots are projected from the current standings and will change. Per the ${(picks.source || 'league pick ledger').toLowerCase()}, ${fmtDate(picks.updated)}.`));
+    h('p', { class: 'note' }, `Per the ${(picks.source || 'league pick ledger').toLowerCase()}, ${fmtDate(picks.updated)}.`));
 }
