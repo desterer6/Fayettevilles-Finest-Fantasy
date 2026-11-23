@@ -18,6 +18,7 @@ const app = document.getElementById('app');
 const state = { from: null, to: null, scoresWeek: null };
 let ctx = null;
 let content = { reports: [], news: [], newsFormUrl: '' };
+let picks = null; // draft pick ownership (data/draft-picks.json), null if missing
 let leagueHist; // league history: undefined until first needed, null if it could not be loaded
 
 function rangeControls() {
@@ -61,7 +62,7 @@ function route(keepScroll = false) {
     else if (page === 'standings') view = renderStandings(ctx);
     else if (page === 'playoffs') view = renderPlayoffs(ctx);
     else if (page === 'power') view = renderPower(ctx, state, () => route(true));
-    else if (page === 'reports') view = renderReports(ctx, content, parts[1]);
+    else if (page === 'reports') view = renderReports(ctx, content, parts.slice(1), picks);
     else if (page === 'news') view = renderNews(content, parts[1]);
     else if (page === 'league-history') {
       if (leagueHist === undefined) {
@@ -154,8 +155,9 @@ async function loadJson(url, fallback) {
 
 async function main() {
   try {
-    const [data, c] = await Promise.all([loadJson('data/league.json'), loadJson('data/content.json', null)]);
+    const [data, c, p] = await Promise.all([loadJson('data/league.json'), loadJson('data/content.json', null), loadJson('data/draft-picks.json', null)]);
     if (c) content = c;
+    picks = p;
     ctx = A.prepare(data);
     content = withTradeNews(ctx, content); // trades pulled from ESPN become League News stories
     setupMePicker(data);
