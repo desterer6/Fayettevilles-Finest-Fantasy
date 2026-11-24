@@ -19,6 +19,7 @@ const ryan = holdings[rids.find(r => picks.managers[r] === 'Ryan')].items;
 ok(ryan.filter(i => i.kind === 'got').length === 2 && ryan.filter(i => i.kind === 'away').length === 3, 'Ryan got two 1sts and sent three picks away');
 const s28 = pickHoldings(picks, picks.seasons.find(s => s.season === 2028), rids).holdings;
 ok(s28[3].total === 17 && s28[12].total === 16 && s28[5].total === 12, '2028 holdings follow the moves');
+ok(s28[2].total === 16 && s28[8].total === 14, '2028: Repp\'s 8th went to Odom in the Connor-to-Connor trade');
 ok(picks.seasons.every(s => !('ruleChecked' in s)), 'the pick rule applies to every season');
 
 console.log(`${pass} checks passed, ${fail} failed`);
