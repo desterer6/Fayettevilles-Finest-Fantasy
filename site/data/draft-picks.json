@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-23T18:15:00",
+  "updated": "2026-11-23T22:10:00",
   "source": "Official league pick ledger",
   "rounds": 15,
   "rule": {
@@ -26,7 +26,8 @@
         { "from": 5, "round": 5, "to": 11 },
         { "from": 5, "round": 6, "to": 12 },
         { "from": 7, "round": 1, "to": 1 },
-        { "from": 1, "round": 4, "to": 7 }
+        { "from": 1, "round": 4, "to": 7 },
+        { "from": 1, "round": 7, "to": 4 }
       ],
       "deals": [
         { "date": "Before Nov 13", "lines": ["Repp gets CGreer's 2027 4th."], "note": "Official pick ledger. No story covers this trade." },
@@ -35,7 +36,8 @@
         { "date": "Nov 13", "lines": ["Odom gets George Kittle.", "Parker gets Dallas Goedert plus Odom's 5th."], "note": "Friday the 13th story." },
         { "date": "Nov 14", "lines": ["Gage gets Jayden Daniels, Christian Watson, Cam Skattebo and Ryan's 5th.", "Ryan gets Gage's 2027 1st."], "note": "Gage loads up story." },
         { "date": "Unknown", "lines": ["Parker gets Ryan's 2027 6th."], "note": "Official pick ledger. No story covers this trade." },
-        { "date": "Nov 21", "lines": ["Tucker gets James Cook and Bentonville's 2027 4th.", "Ben gets Tucker's 2027 1st."], "note": "James Cook story and the official pick ledger." }
+        { "date": "Nov 21", "lines": ["Tucker gets James Cook and Bentonville's 2027 4th.", "Ben gets Tucker's 2027 1st."], "note": "James Cook story and the official pick ledger." },
+        { "date": "Nov 23", "lines": ["CGreer gets Luther Burden III and Ben's 2027 7th.", "Ben gets CGreer's 2028 4th."], "note": "CGreer and Bentonville trade story." }
       ]
     },
     {
@@ -44,10 +46,12 @@
         { "from": 5, "round": 2, "to": 12 },
         { "from": 5, "round": 4, "to": 3 },
         { "from": 5, "round": 6, "to": 3 },
-        { "from": 8, "round": 8, "to": 2 }
+        { "from": 8, "round": 8, "to": 2 },
+        { "from": 4, "round": 4, "to": 1 }
       ],
       "deals": [
-        { "date": "Nov 23", "lines": ["Odom gets Justin Jefferson, Darren Waller and Repp's 2028 8th.", "Repp gets Dak Prescott and Harold Fannin Jr."], "note": "Connor-to-Connor trade story." }
+        { "date": "Nov 23", "lines": ["Odom gets Justin Jefferson, Darren Waller and Repp's 2028 8th.", "Repp gets Dak Prescott and Harold Fannin Jr."], "note": "Connor-to-Connor trade story." },
+        { "date": "Nov 23", "lines": ["CGreer gets Luther Burden III and Ben's 2027 7th.", "Ben gets CGreer's 2028 4th."], "note": "CGreer and Bentonville trade story." }
       ]
     }
   ]
