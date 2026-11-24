@@ -142,3 +142,14 @@ From [history/](history/). The recap bits themselves weren't recovered, so this 
 Early-season tiers were short, conversational phrases ("We Need to Have a Conversation"). From Week 7
 on they became institutions ("The Federal Reserve of Fantasy Football"). Switching back to the
 phrase style is an easy way to freshen up after several weeks of finance themes.
+
+## FF Week 11 (draft)
+- Opener: clinch/elimination marks, "three trades in one night", Odom traded away the "Tee".
+- Repp: defibrillator, "if you can't beat his quarterback, buy his quarterback", Jenga callback.
+- Silas: "nuff said… we love you silas", trade on the way out.
+- Ryan: garage sale callback, "stock ticker".
+- Tucker: subscription callback, "found the cancel button", kicker was second-best player.
+- Parker: Black Friday doorbuster. Ben: brightness turned down, "commish runs the league better than his team".
+- Rankings tiers: Black Friday shopping (checked out, full cart, last discounted TV, out of stock, doors locked).
+- Matchup to watch: Week 1 rematch (183), Black Friday return policy.
+- Rest next: Black Friday after Week 12, Jenga, subscription.
