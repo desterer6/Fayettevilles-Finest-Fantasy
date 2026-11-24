@@ -120,3 +120,10 @@ spells out what each result does to the records, and ends with an absurd escalat
 
 ## Week 10 rankings lesson (FF)
 - David's final Week 10 power rankings dropped the INTELLIGENCE REPORT paragraph and the bullets. Teams are plain lines under each tier with (+N)/(-N) movement only. Default to that format unless he asks for the paragraph back.
+
+## Week 11 edit lessons (FF)
+- He cut the closing zinger in two sections (Tucker "subscription/cancel button", Repp "Jenga tower"). Callbacks to last week's closer can feel forced; one per report is plenty.
+- He cut the winner's stat line from CGreer's section and the Bowers bench aside, keeping the section on the trade storyline. Don't stack too many bench asides.
+- He added wordplay on names: "THIS IS CON-LUSION" (two Connors), "Joe Burrrrrr", "PWillis", "eliminated of the offs". Use playful name riffs.
+- He added more emoji to sad beats (😭😿, 🙉, 🚛🚛). Keep the "nuff said… we love you silas" sympathetic tone for the eliminated team.
+- Bench details from his screenshots were kept. Ask for box score screenshots when bench points matter.
