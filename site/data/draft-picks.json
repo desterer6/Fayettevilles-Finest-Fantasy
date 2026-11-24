@@ -1,0 +1,51 @@
+{
+  "updated": "2026-11-21T12:00:00",
+  "source": "Official league pick ledger",
+  "rounds": 15,
+  "rule": {
+    "min": 13,
+    "max": 17,
+    "summary": "Every team must hold 13 to 17 picks in each season's draft, or face automatic relegation."
+  },
+  "managers": {
+    "1": "Ben", "2": "Odom", "3": "Silas", "4": "CGreer", "5": "Ryan", "6": "Carson",
+    "7": "Tucker", "8": "Repp", "9": "Graham", "10": "David", "11": "Gage", "12": "Parker"
+  },
+  "seasons": [
+    {
+      "season": 2027,
+      "deadline": "2026-12-09T12:00:00",
+      "moves": [
+        { "from": 8, "round": 2, "to": 9 },
+        { "from": 8, "round": 3, "to": 9 },
+        { "from": 4, "round": 1, "to": 5 },
+        { "from": 5, "round": 4, "to": 4 },
+        { "from": 4, "round": 4, "to": 8 },
+        { "from": 2, "round": 5, "to": 12 },
+        { "from": 11, "round": 1, "to": 5 },
+        { "from": 5, "round": 5, "to": 11 },
+        { "from": 5, "round": 6, "to": 12 },
+        { "from": 7, "round": 1, "to": 1 },
+        { "from": 1, "round": 4, "to": 7 }
+      ],
+      "deals": [
+        { "date": "Before Nov 13", "lines": ["Repp gets CGreer's 2027 4th."], "note": "Official pick ledger. No story covers this trade." },
+        { "date": "Nov 13", "lines": ["Repp gets Jonathan Taylor.", "Graham gets Kyle Monangai plus Repp's 2027 2nd and 3rd."], "note": "Blockbuster trade story. The first version (Repp's 3rd and 4th plus CGreer's 4th) was blocked under Amendment #1." },
+        { "date": "Nov 13", "lines": ["CGreer gets Brock Bowers, Ryan's 4th and his own 7th back.", "Ryan gets CGreer's 2027 1st plus Demarcus Robinson."], "note": "Friday the 13th story. CGreer's 7th went back to its original owner, so it doesn't show as moved." },
+        { "date": "Nov 13", "lines": ["Odom gets George Kittle.", "Parker gets Dallas Goedert plus Odom's 5th."], "note": "Friday the 13th story." },
+        { "date": "Nov 14", "lines": ["Gage gets Jayden Daniels, Christian Watson, Cam Skattebo and Ryan's 5th.", "Ryan gets Gage's 2027 1st."], "note": "Gage loads up story." },
+        { "date": "Unknown", "lines": ["Parker gets Ryan's 2027 6th."], "note": "Official pick ledger. No story covers this trade." },
+        { "date": "Nov 21", "lines": ["Tucker gets James Cook and Bentonville's 2027 4th.", "Ben gets Tucker's 2027 1st."], "note": "James Cook story and the official pick ledger." }
+      ]
+    },
+    {
+      "season": 2028,
+      "moves": [
+        { "from": 5, "round": 2, "to": 12 },
+        { "from": 5, "round": 4, "to": 3 },
+        { "from": 5, "round": 6, "to": 3 }
+      ],
+      "deals": []
+    }
+  ]
+}
