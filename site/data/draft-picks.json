@@ -1,5 +1,5 @@
 {
-  "updated": "2026-11-21T12:00:00",
+  "updated": "2026-11-23T18:15:00",
   "source": "Official league pick ledger",
   "rounds": 15,
   "rule": {
@@ -43,9 +43,12 @@
       "moves": [
         { "from": 5, "round": 2, "to": 12 },
         { "from": 5, "round": 4, "to": 3 },
-        { "from": 5, "round": 6, "to": 3 }
+        { "from": 5, "round": 6, "to": 3 },
+        { "from": 8, "round": 8, "to": 2 }
       ],
-      "deals": []
+      "deals": [
+        { "date": "Nov 23", "lines": ["Odom gets Justin Jefferson, Darren Waller and Repp's 2028 8th.", "Repp gets Dak Prescott and Harold Fannin Jr."], "note": "Connor-to-Connor trade story." }
+      ]
     }
   ]
 }
