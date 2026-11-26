@@ -1,5 +1,5 @@
 import * as A from '../analytics.js';
-import { h, f1, section, sortableTable } from '../ui.js';
+import { h, f1, section, sortableTable, openSheet } from '../ui.js';
 import { label } from './common.js';
 import { playoffSize, relegationCount, relegationStatus, currentSeeds, clinchStatus, playoffOdds, bracket, regularSeasonDone, remainingGames, teamModel } from '../playoffs.js';
 import { teamScenarios } from '../scenarios.js';
@@ -77,13 +77,16 @@ function raceCard(ctx, seeds, K, source, status) {
   const N = seeds.length;
   const relStatus = relegationStatus(ctx, seeds, remaining);
   const inDrop = r => R > 0 && r.seed > N - R;
-  const teamCell = r => [h('span', { class: 'xcaret', 'aria-hidden': 'true' }), label(ctx, r.rid), mark(status[r.rid]), inDrop(r) ? h('span', { class: 'rtag', title: `Last place at the end of the regular season is relegated from the league` }, relStatus[r.rid] === 'relegated' ? 'Relegated' : 'Relegation zone') : null];
+  const teamCell = r => [label(ctx, r.rid), mark(status[r.rid]), inDrop(r) ? h('span', { class: 'rtag', title: `Last place at the end of the regular season is relegated from the league` }, relStatus[r.rid] === 'relegated' ? 'Relegated' : 'Relegation zone') : null];
   // Only a clinch or elimination is certain: every sim going one way still reads >99% / <1%.
   const oddsOf = r => (status[r.rid] === 'clinched' ? 1 : status[r.rid] === 'eliminated' ? 0 : Math.min(0.995, Math.max(0.004, odds[r.rid].pct)));
   const model = teamModel(ctx);
   const table = sortableTable({
     sortKey: 'seed', desc: false, stickyIndex: 1,
-    expand: { id: r => r.rid, label: r => `What ${ctx.name(r.rid)} needs to make the playoffs`, render: r => scenarioPanel(ctx, r, { K, status, odds, seeds, remaining, model }) },
+    onRow: {
+      label: r => `What ${ctx.name(r.rid)} needs to make the playoffs`,
+      open: r => openSheet({ kicker: `#${r.seed} seed now · ${A.fmtRec(r)}`, title: ctx.name(r.rid), body: scenarioPanel(ctx, r, { K, status, odds, seeds, remaining, model }) }),
+    },
     rowClass: r => [r.rid === ctx.meRid ? 'mine' : '', r.seed === K + 1 ? 'cut' : '', inDrop(r) ? 'releg' : ''].join(' ').trim(),
     rows: seeds,
     columns: [
@@ -118,6 +121,18 @@ function raceCard(ctx, seeds, K, source, status) {
 
 // What one team needs, in plain words: its record the rest of the way, the other results to root
 // for, and (this week) the simplest ways it clinches or is knocked out. See scenarios.js for the math.
+// Chance of finishing at each playoff seed, from the same simulations as the Odds column.
+function seedOdds(o, K) {
+  const seeds = Array.from({ length: K }, (_, i) => ({ k: i + 1, p: o.seedDist[i + 1] || 0 }));
+  const top = Math.max(...seeds.map(x => x.p), 0.0001);
+  return [h('p', { class: 'scn-label' }, 'Chance of each seed'),
+    h('ul', { class: 'scn-seeds' }, seeds.map(x => h('li', { class: x.p < 0.005 ? 'none' : '' },
+      h('span', { class: 'scn-rec' }, `#${x.k}`),
+      h('span', { class: 'seedbar' }, h('i', { style: { width: `${Math.round((x.p / top) * 100)}%` } })),
+      h('b', {}, x.p < 0.005 ? '–' : pctText(x.p))))),
+    h('p', { class: 'scn-foot' }, 'From playing out the rest of the regular season 5,000 times. Seeds go by wins, then points for.')];
+}
+
 const pctWord = p => (p >= 0.95 ? 'Almost surely in' : p >= 0.6 ? 'Likely in' : p >= 0.4 ? 'Toss-up' : p >= 0.1 ? 'Needs help' : 'Long shot');
 const recText = (w, l) => `${w}-${l}`;
 
@@ -125,12 +140,9 @@ function scenarioPanel(ctx, r, { K, status, odds, seeds, remaining, model }) {
   const nm = rid => ctx.name(rid);
   const st = status[r.rid];
   if (st === 'eliminated') return h('div', { class: 'scn' }, h('p', { class: 'scn-head out' }, 'Eliminated. No mix of the remaining results gets them into the top ' + K + '.'));
-  if (st === 'clinched') {
-    const o = odds[r.rid];
-    const top = o.seedDist.map((p, k) => ({ k, p })).filter(x => x.k && x.p >= 0.005).sort((a, b) => b.p - a.p).slice(0, 3);
-    return h('div', { class: 'scn' }, h('p', { class: 'scn-head in' }, 'Clinched a playoff spot. Nothing left to need, only seeding to play for.'),
-      top.length ? h('p', { class: 'scn-sub' }, 'Most likely seeds: ', top.map((x, i) => [i ? ', ' : '', h('b', {}, `#${x.k}`), ` ${pctText(x.p)}`]), '.') : null);
-  }
+  if (st === 'clinched') return h('div', { class: 'scn' },
+    h('p', { class: 'scn-head in' }, 'Clinched a playoff spot. Now playing for seeding.'),
+    seedOdds(odds[r.rid], K));
   const s = teamScenarios(ctx, r.rid, { rows: seeds, remaining, model });
   const n = s.myGames.length;
   const rec = A.fmtRec(r);
