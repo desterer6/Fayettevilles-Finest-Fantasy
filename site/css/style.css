@@ -616,7 +616,8 @@ table.compact.wk td { padding-right: 14px; }
 
 /* Playoff scenarios: tap a team in the playoff race to open what it needs */
 table.data tr.xrow { cursor: pointer; }
-table.data tr.xrow:focus-visible td { outline: 2px solid var(--brand); outline-offset: -2px; }
+table.data tr.xrow, table.data tr.xrow:focus, table.data tr.xrow:focus-visible { outline: none; -webkit-tap-highlight-color: transparent; }
+table.data tr.xrow:focus-visible td { background: color-mix(in srgb, var(--text) 8%, var(--surface2)); }
 table.data tr.xrow:hover td { background: color-mix(in srgb, var(--text) 5%, var(--surface2)); }
 table.data tr.xrow td.stick > span:first-child { text-decoration: underline; text-decoration-color: var(--faint); text-underline-offset: 3px; }
 
