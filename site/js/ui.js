@@ -98,9 +98,19 @@ export const SERIES = ['#ffd54a', '#3987e5', '#d95926', '#199e70', '#d55181', '#
 
 // ---- Sortable table ----------------------------------------------------------------------
 // columns: [{ key, label, sort(row)->number|string, cell(row)->Node|string, align, title }]
-export function sortableTable({ columns, rows, sortKey, desc = true, rowClass, className = '', stickyIndex = -1 }) {
+// `expand` (optional): { id: row => key, render: row => node, label: row => text }. Tapping a row opens
+// a full-width panel under it; open panels stay open when the table is re-sorted.
+export function sortableTable({ columns, rows, sortKey, desc = true, rowClass, className = '', stickyIndex = -1, expand = null }) {
   let key = sortKey ?? columns[0].key, dir = desc;
   const wrap = h('div', { class: 'tablewrap' });
+  const open = new Set();
+  const panels = new Map();
+  const panelFor = r => {
+    const id = expand.id(r);
+    if (!panels.has(id)) panels.set(id, expand.render(r));
+    return h('tr', { class: 'xpanel' }, h('td', { colspan: columns.length }, h('div', { class: 'xin', style: { width: `${Math.max(240, wrap.clientWidth - 12)}px` } }, panels.get(id))));
+  };
+  const toggle = r => { const id = expand.id(r); if (open.has(id)) open.delete(id); else open.add(id); const x = wrap.scrollLeft; render(); wrap.scrollLeft = x; };
   function render() {
     const col = columns.find(c => c.key === key);
     const sorted = rows.slice().sort((a, b) => {
@@ -113,8 +123,17 @@ export function sortableTable({ columns, rows, sortKey, desc = true, rowClass, c
       title: c.title || null,
       onclick: () => { if (key === c.key) dir = !dir; else { key = c.key; dir = c.firstDesc !== false; } render(); },
     }, c.label, c.key === key ? h('span', { class: 'arrow' }, dir ? ' ▾' : ' ▴') : '')));
-    const body = sorted.map(r => h('tr', { class: rowClass ? rowClass(r) : '' },
-      columns.map((c, i) => { const v = c.cell(r); return h('td', { class: (c.align || '') + (i === stickyIndex ? ' stick' : '') }, v); })));
+    const body = sorted.flatMap(r => {
+      const isOpen = expand && open.has(expand.id(r));
+      const cls = [rowClass ? rowClass(r) : '', expand ? 'xrow' : '', isOpen ? 'open' : ''].join(' ').trim();
+      const attrs = expand ? {
+        class: cls, tabindex: 0, role: 'button', 'aria-expanded': isOpen ? 'true' : 'false', title: expand.label ? expand.label(r) : null,
+        onclick: () => toggle(r),
+        onkeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(r); } },
+      } : { class: cls };
+      const tr = h('tr', attrs, columns.map((c, i) => { const v = c.cell(r); return h('td', { class: (c.align || '') + (i === stickyIndex ? ' stick' : '') }, v); }));
+      return isOpen ? [tr, panelFor(r)] : [tr];
+    });
     wrap.replaceChildren(h('table', { class: 'data ' + className }, h('thead', {}, head), h('tbody', {}, body)));
   }
   render();

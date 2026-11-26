@@ -26,6 +26,7 @@ ESPN API  →  scripts/fetch.mjs  →  scripts/espn.mjs (clean + transform)  →
 | `scripts/fetch.mjs` | Network + files only: calls ESPN, hands the responses to `espn.mjs`, writes `site/data/league.json` |
 | `scripts/espn.mjs` | Pure ESPN → site transform (no I/O). The only file that knows ESPN's format |
 | `site/js/analytics.js` | All calculations (pure functions, shared by the site and the tests) |
+| `site/js/scenarios.js` | Playoff scenarios: tap a team in the Playoff race table to see what it needs (every remaining win/loss combination, recomputed from the latest data on every refresh) |
 | `scripts/trades.mjs` | Pure ESPN transactions → trades transform (who got which players, pending/official/vetoed) |
 | `site/js/trades.js` | Turns those trades into League News stories, skipping any trade you already wrote up by hand |
 | `scripts/content.mjs` | Pure parsing of weekly-report issues and the news sheet (owner/approval rules live here) |

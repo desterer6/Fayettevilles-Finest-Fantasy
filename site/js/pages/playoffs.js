@@ -1,7 +1,8 @@
 import * as A from '../analytics.js';
 import { h, f1, section, sortableTable } from '../ui.js';
 import { label } from './common.js';
-import { playoffSize, relegationCount, relegationStatus, currentSeeds, clinchStatus, playoffOdds, bracket, regularSeasonDone, remainingGames } from '../playoffs.js';
+import { playoffSize, relegationCount, relegationStatus, currentSeeds, clinchStatus, playoffOdds, bracket, regularSeasonDone, remainingGames, teamModel } from '../playoffs.js';
+import { teamScenarios } from '../scenarios.js';
 
 const pctText = p => (p >= 0.995 && p < 1 ? '>99%' : p > 0 && p < 0.005 ? '<1%' : `${Math.round(p * 100)}%`);
 // ESPN-style marks beside a team name: x = clinched a playoff spot, e = eliminated from the playoffs.
@@ -76,11 +77,13 @@ function raceCard(ctx, seeds, K, source, status) {
   const N = seeds.length;
   const relStatus = relegationStatus(ctx, seeds, remaining);
   const inDrop = r => R > 0 && r.seed > N - R;
-  const teamCell = r => [label(ctx, r.rid), mark(status[r.rid]), inDrop(r) ? h('span', { class: 'rtag', title: `Last place at the end of the regular season is relegated from the league` }, relStatus[r.rid] === 'relegated' ? 'Relegated' : 'Relegation zone') : null];
+  const teamCell = r => [h('span', { class: 'xcaret', 'aria-hidden': 'true' }), label(ctx, r.rid), mark(status[r.rid]), inDrop(r) ? h('span', { class: 'rtag', title: `Last place at the end of the regular season is relegated from the league` }, relStatus[r.rid] === 'relegated' ? 'Relegated' : 'Relegation zone') : null];
   // Only a clinch or elimination is certain: every sim going one way still reads >99% / <1%.
   const oddsOf = r => (status[r.rid] === 'clinched' ? 1 : status[r.rid] === 'eliminated' ? 0 : Math.min(0.995, Math.max(0.004, odds[r.rid].pct)));
+  const model = teamModel(ctx);
   const table = sortableTable({
     sortKey: 'seed', desc: false, stickyIndex: 1,
+    expand: { id: r => r.rid, label: r => `What ${ctx.name(r.rid)} needs to make the playoffs`, render: r => scenarioPanel(ctx, r, { K, status, odds, seeds, remaining, model }) },
     rowClass: r => [r.rid === ctx.meRid ? 'mine' : '', r.seed === K + 1 ? 'cut' : '', inDrop(r) ? 'releg' : ''].join(' ').trim(),
     rows: seeds,
     columns: [
@@ -104,13 +107,73 @@ function raceCard(ctx, seeds, K, source, status) {
       risk.length ? `Chance of finishing last: ${risk.map(x => `${ctx.name(x.r.rid)} ${pctText(x.p)}`).join(', ')}.` : '');
   }
   return section('Playoff race',
-    `${weeksLeft} regular-season week${weeksLeft === 1 ? '' : 's'} left. The dashed line is the cutoff for the top ${K}. Tap a column to sort.`,
+    `${weeksLeft} regular-season week${weeksLeft === 1 ? '' : 's'} left. The dashed line is the cutoff for the top ${K}. Tap a team to see what it needs; tap a column to sort.`,
     table,
     relegNote,
     h('p', { class: 'note' },
       `Seeds ${source === 'espn' ? 'come straight from ESPN, using the league’s tiebreakers' : 'are by record, then points for'}. ` +
       `Odds come from playing out the remaining ESPN schedule ${sims.toLocaleString()} times, with each team scoring like it has so far this season (and ESPN’s projections for the current week), ranked by wins and then points. ` +
       'x = clinched a playoff spot, e = eliminated. Both are certain on wins alone.'));
+}
+
+// What one team needs, in plain words: its record the rest of the way, the other results to root
+// for, and (this week) the simplest ways it clinches or is knocked out. See scenarios.js for the math.
+const pctWord = p => (p >= 0.95 ? 'Almost surely in' : p >= 0.6 ? 'Likely in' : p >= 0.4 ? 'Toss-up' : p >= 0.1 ? 'Needs help' : 'Long shot');
+const recText = (w, l) => `${w}-${l}`;
+
+function scenarioPanel(ctx, r, { K, status, odds, seeds, remaining, model }) {
+  const nm = rid => ctx.name(rid);
+  const st = status[r.rid];
+  if (st === 'eliminated') return h('div', { class: 'scn' }, h('p', { class: 'scn-head out' }, 'Eliminated. No mix of the remaining results gets them into the top ' + K + '.'));
+  if (st === 'clinched') {
+    const o = odds[r.rid];
+    const top = o.seedDist.map((p, k) => ({ k, p })).filter(x => x.k && x.p >= 0.005).sort((a, b) => b.p - a.p).slice(0, 3);
+    return h('div', { class: 'scn' }, h('p', { class: 'scn-head in' }, 'Clinched a playoff spot. Nothing left to need, only seeding to play for.'),
+      top.length ? h('p', { class: 'scn-sub' }, 'Most likely seeds: ', top.map((x, i) => [i ? ', ' : '', h('b', {}, `#${x.k}`), ` ${pctText(x.p)}`]), '.') : null);
+  }
+  const s = teamScenarios(ctx, r.rid, { rows: seeds, remaining, model });
+  const n = s.myGames.length;
+  const rec = A.fmtRec(r);
+  const finalRec = b => { const t = r.t ? `-${r.t}` : ''; return `${r.w + b.wins}-${r.l + b.losses}${t}`; };
+  const best = s.byRecord[0];
+  // Smallest number of wins that is enough on its own.
+  const enough = s.byRecord.filter(b => b.sure).pop();
+  let head;
+  if (best.never) head = h('p', { class: 'scn-head out' }, 'Out of reach on wins alone.');
+  else if (enough && enough.wins === 0) head = h('p', { class: 'scn-head in' }, 'In no matter what happens on the field.');
+  else if (enough) head = h('p', { class: 'scn-head in' }, enough.wins === n ? `Win out (${finalRec(enough)}) and they’re in. No help needed.` : `Win ${enough.wins} of ${n} and they’re in. No help needed.`);
+  else if (best.pIn >= 0.995) head = h('p', { class: 'scn-head in' }, `Win out (${finalRec(best)}) and they’re in, unless a tie on wins goes against them on points (unlikely).`);
+  else head = h('p', { class: 'scn-head help' }, `Even winning out (${finalRec(best)}) isn’t enough on its own. They need help from other games.`);
+
+  const sched = h('p', { class: 'scn-sub' }, `${rec} now. Left: `, s.myGames.map((g, i) => [i ? ', ' : '', `Wk ${g.week} vs ${nm(g.opp)}`]), '.');
+
+  const rows = s.byRecord.map(b => {
+    const verdict = b.sure ? h('span', { class: 'pbadge in' }, 'In') : b.never ? h('span', { class: 'pbadge out' }, 'Out') : h('span', { class: 'scn-pct' }, h('b', {}, pctText(b.pIn)), ` ${pctWord(b.pIn)}`);
+    const why = b.sure ? 'guaranteed' : b.never ? 'no way in' : b.pIn >= 0.995 ? 'only a points tiebreak can stop it' : 'depends on other games' + (b.points ? ' and points' : '');
+    return h('li', {}, h('span', { class: 'scn-rec' }, n === 0 ? 'As is' : `Go ${recText(b.wins, b.losses)}`), h('span', {}, verdict, h('span', { class: 'scn-why' }, why)));
+  });
+
+  const cond = (c, clinch) => (c.mine
+    ? (c.winner === r.rid ? `a win over ${nm(c.loser)}` : `a loss to ${nm(c.winner)}`)
+    : clinch ? `${nm(c.loser)} loses to ${nm(c.winner)}` : `${nm(c.winner)} beats ${nm(c.loser)}`);
+  const ways = (list, clinch) => h('ul', { class: 'scn-ways' }, list.map((set, i) => h('li', {}, i ? h('i', {}, 'or ') : null, set.map((c, j) => [j ? ' + ' : '', cond(c, clinch)]))));
+  const tw = s.thisWeek;
+  const live = tw && ctx.data.weeks.find(w => w.week === tw.week && !w.complete);
+  const weekBits = [];
+  if (tw && tw.clinch.length) weekBits.push(h('p', { class: 'scn-label' }, `Clinches in Week ${tw.week} with:`), ways(tw.clinch, true));
+  if (tw && tw.eliminate.length) weekBits.push(h('p', { class: 'scn-label' }, `Eliminated in Week ${tw.week} with:`), ways(tw.eliminate, false));
+
+  const root = s.rootFor.slice(0, 3);
+  return h('div', { class: 'scn' },
+    head, sched,
+    h('p', { class: 'scn-label' }, 'If they finish the season…'),
+    h('ul', { class: 'scn-recs' }, rows),
+    weekBits,
+    root.length ? [h('p', { class: 'scn-label' }, 'Root for these results:'),
+      h('ul', { class: 'scn-ways' }, root.map(x => h('li', {}, `Wk ${x.week}: `, h('b', {}, nm(x.winner)), ` over ${nm(x.loser)}`, h('span', { class: 'scn-why' }, `+${Math.round(x.swing * 100)}% odds`))))] : null,
+    h('p', { class: 'scn-foot' }, s.exact
+      ? `Checked all ${s.outcomes.toLocaleString()} ways the last ${remaining.length} games can go. Ties on wins go to points for, so those cases are a chance, not a lock.${live && live.matchups.some(m => m.teams.some(t => t.pts > 0)) ? ` Week ${tw.week} is in progress and counts as not played yet.` : ''}`
+      : `Estimated from ${s.outcomes.toLocaleString()} simulated finishes; exact scenarios appear once ${20} or fewer games are left.`));
 }
 
 function seedsCard(ctx, seeds, K) {

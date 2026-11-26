@@ -77,13 +77,9 @@ function mulberry32(a) {
   return () => { a |= 0; a = (a + 0x6d2b79f5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 }
 
-// Monte Carlo over the remaining regular season. Each team scores from a normal curve built on its
-// season so far (average pulled 25% toward the league average, spread at least 15 points); ESPN's
-// projection is used as the average for the current week when it exists. Seeds by wins, then points.
-export function playoffOdds(ctx, { sims = 5000 } = {}) {
-  const K = playoffSize(ctx);
-  const st = A.standings(ctx);
-  const remaining = remainingGames(ctx);
+// Each team scores from a normal curve built on its season so far (average pulled 25% toward the
+// league average, spread at least 15 points). Shared by the odds and the scenarios.
+export function teamModel(ctx) {
   const all = ctx.completed.flatMap(w => ctx.rids.map(r => ctx.score[w][r]).filter(v => v != null));
   const lgMean = all.length ? all.reduce((a, b) => a + b, 0) / all.length : 100;
   const model = {};
@@ -93,6 +89,16 @@ export function playoffOdds(ctx, { sims = 5000 } = {}) {
     const sd = xs.length > 1 ? Math.sqrt(xs.reduce((a, x) => a + (x - m) ** 2, 0) / (xs.length - 1)) : 20;
     model[rid] = { mean: 0.75 * m + 0.25 * lgMean, sd: Math.max(15, sd) };
   }
+  return model;
+}
+
+// Monte Carlo over the remaining regular season with teamModel; ESPN's projection is used as the
+// average for the current week when it exists. Seeds by wins, then points.
+export function playoffOdds(ctx, { sims = 5000 } = {}) {
+  const K = playoffSize(ctx);
+  const st = A.standings(ctx);
+  const remaining = remainingGames(ctx);
+  const model = teamModel(ctx);
   const rand = mulberry32(1000 + ctx.completed.length);
   const gauss = () => { let u = 0; while (!u) u = rand(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * rand()); };
   const base = Object.fromEntries(st.map(r => [r.rid, { w: A.winsOf(r), pf: r.pf }]));
