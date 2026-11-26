@@ -98,7 +98,8 @@ export const SERIES = ['#ffd54a', '#3987e5', '#d95926', '#199e70', '#d55181', '#
 
 // ---- Sortable table ----------------------------------------------------------------------
 // columns: [{ key, label, sort(row)->number|string, cell(row)->Node|string, align, title }]
-export function sortableTable({ columns, rows, sortKey, desc = true, rowClass, className = '', stickyIndex = -1 }) {
+// `onRow` (optional): { open: row => void, label: row => text }. Rows become tappable buttons.
+export function sortableTable({ columns, rows, sortKey, desc = true, rowClass, className = '', stickyIndex = -1, onRow = null }) {
   let key = sortKey ?? columns[0].key, dir = desc;
   const wrap = h('div', { class: 'tablewrap' });
   function render() {
@@ -113,12 +114,38 @@ export function sortableTable({ columns, rows, sortKey, desc = true, rowClass, c
       title: c.title || null,
       onclick: () => { if (key === c.key) dir = !dir; else { key = c.key; dir = c.firstDesc !== false; } render(); },
     }, c.label, c.key === key ? h('span', { class: 'arrow' }, dir ? ' ▾' : ' ▴') : '')));
-    const body = sorted.map(r => h('tr', { class: rowClass ? rowClass(r) : '' },
-      columns.map((c, i) => { const v = c.cell(r); return h('td', { class: (c.align || '') + (i === stickyIndex ? ' stick' : '') }, v); })));
+    const body = sorted.map(r => {
+      const cls = [rowClass ? rowClass(r) : '', onRow ? 'xrow' : ''].join(' ').trim();
+      const attrs = onRow ? {
+        class: cls, tabindex: 0, role: 'button', 'aria-haspopup': 'dialog', title: onRow.label ? onRow.label(r) : null,
+        onclick: () => onRow.open(r),
+        onkeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onRow.open(r); } },
+      } : { class: cls };
+      return h('tr', attrs, columns.map((c, i) => { const v = c.cell(r); return h('td', { class: (c.align || '') + (i === stickyIndex ? ' stick' : '') }, v); }));
+    });
     wrap.replaceChildren(h('table', { class: 'data ' + className }, h('thead', {}, head), h('tbody', {}, body)));
   }
   render();
   return wrap;
+}
+
+// A pop-up sheet (native <dialog>): full width from the bottom on phones, centred on wider screens.
+// Closes with the X, Escape, or a tap outside, and gives focus back to whatever opened it.
+export function openSheet({ title, kicker = null, body }) {
+  const back = document.activeElement;
+  const close = () => dlg.close();
+  const dlg = h('dialog', { class: 'sheet', 'aria-label': title },
+    h('div', { class: 'sheet-top' },
+      h('div', {}, kicker ? h('span', { class: 'kicker' }, kicker) : null, h('h2', {}, title)),
+      h('button', { class: 'sheet-x', type: 'button', 'aria-label': 'Close', onclick: close }, '×')),
+    h('div', { class: 'sheet-body' }, body));
+  dlg.addEventListener('click', e => { if (e.target === dlg) close(); });
+  dlg.addEventListener('close', () => { dlg.remove(); document.documentElement.classList.remove('sheet-open'); back?.focus?.(); });
+  document.body.append(dlg);
+  document.documentElement.classList.add('sheet-open');
+  dlg.showModal();
+  dlg.querySelector('.sheet-body').scrollTop = 0;
+  return dlg;
 }
 
 export function section(title, sub, ...content) {
